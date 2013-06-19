@@ -4,3 +4,6 @@
 *.hex
 *.map
 *.out
+
+bin/
+obj/
