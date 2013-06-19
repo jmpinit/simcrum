@@ -1,4 +1,5 @@
 #include <stdint.h>
+#include <util/delay.h>
 #include "inc/MakoVM.h"
 #include "inc/Screen.h"
 
@@ -56,8 +57,8 @@ void tick() {
 		case OP_JUMP   :                 m[PC] = m[m[PC]];        break;
 		case OP_JUMPZ  : m[PC] = pop()==0 ? m[m[PC]] : m[PC]+1;   break;
 		case OP_JUMPIF : m[PC] = pop()!=0 ? m[m[PC]] : m[PC]+1;   break;
-		case OP_LOAD   : push(vm_load(pop()));                       break;
-		case OP_STOR   : vm_stor(pop(),pop());                       break;
+		case OP_LOAD   : push(vm_load(pop()));                    break;
+		case OP_STOR   : vm_stor(pop(),pop());                    break;
 		case OP_RETURN : m[PC] = rpop();                          break;
 		case OP_DROP   : pop();                                   break;
 		case OP_SWAP   : a = pop(); b = pop(); push(a); push(b);  break;
@@ -96,8 +97,8 @@ int vm_load(int addr) {
 	return m[addr];
 }
 
-void vm_stor(int addr, int value) {
-	if(addr == XO) { screen_print_char((char)value); }
+void vm_stor(int value, int addr) {
+	if(addr == CO) { screen_print_hex((char)value); }
 	else {
 		m[addr] = value;
 	}
