@@ -1,7 +1,7 @@
 #ifndef MAKOVM
 #define MAKOVM
 
-#define MEM_SIZE	64
+#define MEM_SIZE	260
 
 #define OP_CONST   0
 #define OP_CALL    1
@@ -39,12 +39,12 @@
 
 #define GP   3 // grid pointer
 #define GT   4 // grid tile pointer
-#define SP   5 // sprite pointer
+/*#define SP   5 // sprite pointer
 #define ST   6 // sprite tile pointer
 #define SX   7 // scroll X
 #define SY   8 // scroll Y
 #define GS   9 // grid horizontal skip
-#define CL  10 // clear color
+#define CL  10 // clear color*/
 #define RN  11 // random number
 #define KY  12 // key input
 
@@ -74,7 +74,8 @@
 #define X_OPEN_READ   1
 #define X_OPEN_WRITE  2
 
-int load(int addr);
-void stor(int addr, int value);
+void vm_run();
+int vm_load(int addr);
+void vm_stor(int addr, int value);
 
 #endif

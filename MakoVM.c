@@ -1,8 +1,44 @@
+#include <stdint.h>
 #include "MakoVM.h"
 
 #include "Screen.h"
 
-int m[MEM_SIZE]; // main memory
+//uint32_t m[MEM_SIZE]; // main memory
+uint32_t m[] = {
+	139,    160,    210,    0,      0,      0,      0,      0,
+	0,      0,      0,      0,      0,      0,      0,      0,
+	0,      0,      0,      26,     4,      26,     0,      -1,
+	2,      28,     0,      0,      12,     26,     4,      36,
+	0,      0,      2,      38,     0,      -1,     12,     17,
+	12,     2,      43,     0,      13,     11,     12,     0,
+	10,     2,      41,     0,      9,      2,      41,     0,
+	32,     2,      41,     0,      1,      20,     17,     1,
+	55,     31,     63,     18,     13,     12,     16,     16,
+	23,     17,     22,     18,     12,     0,      10,     1,
+	70,     0,      48,     19,     14,     15,     3,      92,
+	1,      77,     2,      93,     13,     2,      41,     15,
+	0,      0,      29,     3,      108,    0,      45,     1,
+	41,     0,      -1,     21,     2,      77,     1,      95,
+	2,      55,     10,     2,      110,    15,     10,     15,
+	3,      126,    1,      41,     2,      129,    13,     13,
+	12,     0,      1,      19,     2,      117,    12,     1,
+	117,    2,      47,     2,      154,    104,    101,    108,
+	108,    111,    32,     119,    111,    114,    108,    100,
+	33,     0,      0,      141,    1,      135,    2,      -1,
+	0,      0,      0,      0,      0,      0,      0,      0,
+	0,      0,      0,      0,      0,      0,      0,      0,
+	0,      0,      0,      0,      0,      0,      0,      0,
+	0,      0,      0,      0,      0,      0,      0,      0,
+	0,      0,      0,      0,      0,      0,      0,      0,
+	0,      0,      0,      0,      0,      0,      0,      0,
+	0,      0,      0,      0,      0,      0,      0,      0,
+	0,      0,      0,      0,      0,      0,      0,      0,
+	0,      0,      0,      0,      0,      0,      0,      0,
+	0,      0,      0,      0,      0,      0,      0,      0,
+	0,      0,      0,      0,      0,      0,      0,      0,
+	0,      0,      0,      0,      0,      0,      0,      0,
+    0,      0,      0,      0,
+};
 int keys = 0;
 
 void push(int v)      { m[m[DP]++] = v; }
@@ -21,8 +57,8 @@ void tick() {
 		case OP_JUMP   :                 m[PC] = m[m[PC]];        break;
 		case OP_JUMPZ  : m[PC] = pop()==0 ? m[m[PC]] : m[PC]+1;   break;
 		case OP_JUMPIF : m[PC] = pop()!=0 ? m[m[PC]] : m[PC]+1;   break;
-		case OP_LOAD   : push(load(pop()));                       break;
-		case OP_STOR   : stor(pop(),pop());                       break;
+		case OP_LOAD   : push(vm_load(pop()));                       break;
+		case OP_STOR   : vm_stor(pop(),pop());                       break;
 		case OP_RETURN : m[PC] = rpop();                          break;
 		case OP_DROP   : pop();                                   break;
 		case OP_SWAP   : a = pop(); b = pop(); push(a); push(b);  break;
@@ -45,15 +81,15 @@ void tick() {
 	}
 }
 
-void run() {
+void vm_run() {
 	while(m[m[PC]] != OP_SYNC) {
 		tick();
-		if (m[PC] == -1) { /* TODO - exit */ }
+		if (m[PC] == -1) break;
 	}
 	m[PC]++;
 }
 
-int load(int addr) {
+int vm_load(int addr) {
 	//if (addr == RN) { return rand.nextInt(); } // TODO - implement random
 	if (addr == KY) { return keys; }
 	if (addr == KB) { return -1; }
@@ -61,8 +97,11 @@ int load(int addr) {
 	return m[addr];
 }
 
-void stor(int addr, int value) {
-	m[addr] = value;
+void vm_stor(int addr, int value) {
+	if(addr == XO) { screen_print_char((char)value); }
+	else {
+		m[addr] = value;
+	}
 }
 
 /*void drawTile(int tile, int px, int py) {

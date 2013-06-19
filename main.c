@@ -30,7 +30,8 @@ void boot(void) {
 int main(void) {
 	boot();
 	
-	screen_print_string("hello world!");
+	//screen_print_string("hello world!");
+	vm_run();
 	
 	for(;;) { __asm__ volatile("NOP"); }
 
