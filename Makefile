@@ -16,13 +16,16 @@ OBJCOPY := avr-objcopy
 SIZE := avr-size -A
 DOXYGEN := doxygen
 
-CFLAGS := -Wall -pedantic -mmcu=$(MCU) -std=c99 -g -Os -DF_CPU=$(MCU_FREQ)
+CFLAGS := -Wall -pedantic -mmcu=$(MCU) -std=c99 -g -Os -DF_CPU=$(MCU_FREQ) -gstabs
+
+SIMCC := gcc
+SIMCFLAGS := -Wall -pedantic -std=c99 -g -Os -IC:\WinAVR\avr\include
 
 all: $(HEX)
 
 clean:
-	rm -f $(HEX) $(OUT) $(MAP) $(OBJECTS)
-	rm -rf doc/html
+	del $(HEX) $(OUT) $(MAP) $(OBJECTS)
+	del doc/html
 
 flash: $(HEX)
 	avrdude -y -c usbtiny -p $(MCU_AVRDUDE) -U flash:w:$(HEX)
@@ -33,20 +36,11 @@ $(HEX): $(OUT)
 $(OUT): $(OBJECTS)
 	$(CC) $(CFLAGS) -o $@ -Wl,-Map,$(MAP) $^
 	@echo
-	@$(SIZE) $@
+	$(SIZE) $@
 	@echo
 
 %.o: %.c $(HEADERS)
 	$(CC) $(CFLAGS) -c -o $@ $<
 
-%.pp: %.c
-	$(CC) $(CFLAGS) -E -o $@ $<
-
-%.ppo: %.c
-	$(CC) $(CFLAGS) -E $<
-
-doc: $(HEADERS) $(SOURCES) Doxyfile
-	$(DOXYGEN) Doxyfile
-
-.PHONY: all clean flash doc
+.PHONY: all clean flash
 
