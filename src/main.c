@@ -3,12 +3,12 @@
 #include <avr/interrupt.h>
 #include <avr/pgmspace.h>
 
-#include "Analog.h"
-#include "Disk.h"
-#include "Screen.h"
-#include "Serial.h"
+#include "inc/Analog.h"
+#include "inc/Disk.h"
+#include "inc/Screen.h"
+#include "inc/Serial.h"
 
-#include "MakoVM.h"
+#include "inc/MakoVM.h"
 
 //#include "logo.h"
 

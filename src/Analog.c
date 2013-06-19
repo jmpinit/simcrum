@@ -1,5 +1,7 @@
 #include <avr/io.h>
 
+#include "inc/Analog.h"
+
 uint16_t adc_read(uint8_t channel) {
 	ADMUX 	= channel;
 	ADCSRA	|= _BV(ADSC);

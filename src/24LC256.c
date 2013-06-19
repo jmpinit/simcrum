@@ -1,7 +1,7 @@
 #include <util/delay.h>
 
-#include "Disk.h"
-#include "i2cmaster.h"
+#include "inc/Disk.h"
+#include "inc/i2cmaster.h"
 
 #define ADDRESS 0xA0
 #define DISK_SIZE 32767

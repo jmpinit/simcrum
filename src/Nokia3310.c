@@ -4,8 +4,8 @@
 
 //#include "logo.h"
 
-#include "Screen.h"
-#include "font.h"
+#include "inc/Screen.h"
+#include "res/font.h"
 
 #define PIN_SCE		PB7
 #define PIN_RESET	PD5

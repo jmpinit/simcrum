@@ -1,6 +1,10 @@
 #ifndef MAKOVM
 #define MAKOVM
 
+void vm_run(void);
+int vm_load(int addr);
+void vm_stor(int addr, int value);
+
 #define MEM_SIZE	260
 
 #define OP_CONST   0
@@ -73,9 +77,5 @@
 #define X_CLOSE       0
 #define X_OPEN_READ   1
 #define X_OPEN_WRITE  2
-
-void vm_run();
-int vm_load(int addr);
-void vm_stor(int addr, int value);
 
 #endif

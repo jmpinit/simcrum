@@ -1,6 +1,8 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 
+#include "inc/Serial.h"
+
 #define BUFF_SIZE 32
 
 unsigned char buffer[BUFF_SIZE];

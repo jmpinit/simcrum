@@ -1,7 +1,6 @@
 #include <stdint.h>
-#include "MakoVM.h"
-
-#include "Screen.h"
+#include "inc/MakoVM.h"
+#include "inc/Screen.h"
 
 //uint32_t m[MEM_SIZE]; // main memory
 uint32_t m[] = {
@@ -81,7 +80,7 @@ void tick() {
 	}
 }
 
-void vm_run() {
+void vm_run(void) {
 	while(m[m[PC]] != OP_SYNC) {
 		tick();
 		if (m[PC] == -1) break;
