@@ -1,12 +1,18 @@
 NAME := SUPERWATCH
 
+ifeq ($(OS),Windows_NT)
+S := \\
+else
+S := /
+endif
+
 SRCDIR := src
 OBJDIR := obj
 BINDIR := bin
 
-HEX := $(BINDIR)\$(NAME).hex
-OUT := $(OBJDIR)\$(NAME).out
-MAP := $(OBJDIR)\$(NAME).map
+HEX := $(BINDIR)$(S)$(NAME).hex
+OUT := $(OBJDIR)$(S)$(NAME).out
+MAP := $(OBJDIR)$(S)$(NAME).map
 
 SOURCES =	main.c \
 			MakoVM.c \
@@ -17,8 +23,8 @@ SOURCES =	main.c \
 			twimaster.c \
 			
 #HEADERS := src/inc/$(wildcard *.h)
-INCLUDES = -Isrc/inc -Ires
-OBJECTS = $(patsubst %,$(OBJDIR)\\%,$(SOURCES:.c=.o))
+INCLUDES = -Isrc$(S)inc -Ires
+OBJECTS = $(patsubst %,$(OBJDIR)$(S)%,$(SOURCES:.c=.o))
 MCU := atmega328p
 MCU_AVRDUDE := atmega328p
 MCU_FREQ := 1000000UL
@@ -32,7 +38,11 @@ CFLAGS := -Wall -pedantic -mmcu=$(MCU) -std=c99 -g -Os -DF_CPU=$(MCU_FREQ) -gsta
 all: $(HEX)
 
 clean:
+ifeq ($(OS),Windows_NT)
 	del $(HEX) $(OUT) $(MAP) $(OBJECTS)
+else
+	rm $(HEX) $(OUT) $(MAP) $(OBJECTS)
+endif
 
 flash: $(HEX)
 	avrdude -y -c usbtiny -p $(MCU_AVRDUDE) -U flash:w:$(HEX)
@@ -45,7 +55,7 @@ $(OUT): $(OBJECTS)
 	@echo = = = = = = = = =
 	$(SIZE) $@
 
-$(OBJDIR)\\%.o: $(SRCDIR)\%.c
+$(OBJDIR)$(S)%.o: $(SRCDIR)$(S)%.c
 	$(CC) $(CFLAGS) $(INCLUDES) -c -o $@ $<
 	
 $(OBJDIR):
