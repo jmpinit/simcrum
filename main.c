@@ -8,6 +8,8 @@
 #include "Screen.h"
 #include "Serial.h"
 
+#include "MakoVM.h"
+
 //#include "logo.h"
 
 #define TRUE	0xFF
@@ -18,7 +20,7 @@
 void boot(void) {
 	//start the LCD
 	screen_initialize();
-    screen_clear(0x00);
+	screen_clear(0xAA);
 	
 	uart_init(12);
 	disk_init();
@@ -28,24 +30,36 @@ void boot(void) {
 int main(void) {
 	boot();
 	
-	screen_clear(0x00);
+	screen_print_string("hello world!");
+	
+	for(;;) { __asm__ volatile("NOP"); }
 
-    for(;;) {
+	for(;;) {
+		//uart_tx_str("hello world!");
+		//uart_tx(13);
+		screen_clear(0xFF);
+		
+		_delay_ms(500);
+	}
+	
+	//print welcome message
+	screen_print_string("hello world!");
+
+	for(;;) {
 		while(uart_available()) {
+			char c = uart_read_buff();
 			switch(c) {
 				case 13:	//carriage return
-					screen_print_newline();
-					break
+					//screen_print_newline();
+					break;
 				case 12:	//form feed
 					screen_clear(0x00);
 					break;
 				default:
-					char c = uart_read_buff();
 					screen_print_char(c);
 			}
 		}
-    }
+	}
     
-    // Never reached.
     return(0);
 }

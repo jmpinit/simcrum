@@ -1,3 +1,6 @@
+#ifndef SCREEN
+#define SCREEN
+
 unsigned char invert;
 
 void screen_initialize(void);
@@ -22,3 +25,5 @@ void screen_set_pos(unsigned char x, unsigned char y);
 void screen_scrollup(void);
 void screen_backspace(void);
 void screen_newline(void);
+
+#endif

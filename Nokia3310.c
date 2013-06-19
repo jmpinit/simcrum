@@ -2,11 +2,11 @@
 #include <util/delay.h>
 #include <avr/pgmspace.h>
 
-#include "logo.h"
-;
+//#include "logo.h"
+
 #include "Screen.h"
 #include "font.h"
-;
+
 #define PIN_SCE		PB7
 #define PIN_RESET	PD5
 #define PIN_DC		PD6
@@ -220,7 +220,7 @@ void screen_draw_slice(unsigned char slice) {
 	write_data(slice);
 }
 
-void screen_draw_bitmap()
+/*void screen_draw_bitmap()
 {
 	set_pos(0, 0);
 
@@ -228,7 +228,7 @@ void screen_draw_bitmap()
 	{
 		write_data(pgm_read_byte(&logo[i]));
 	}
-}
+}*/
 
 //NOKIA 3310 specific
 void spi_write(unsigned char data)
