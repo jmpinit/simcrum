@@ -10,7 +10,7 @@ SRCDIR := src
 OBJDIR := obj
 BINDIR := bin
 
-OTHER_SRC = ..$(S)micro$(S)src
+OTHER_SRC = ..$(S)hardware$(S)src
 SOURCES =	main.c \
 			MakoVM.c \
 			bootstrap.c \
