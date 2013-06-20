@@ -7,3 +7,12 @@
 
 bin/
 obj/
+
+*.class
+*.DS_Store
+*.before
+*.after
+*.coredump.rom
+build/**
+dist/**
+*.jar
