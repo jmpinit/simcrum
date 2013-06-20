@@ -2,6 +2,7 @@
 #include <stdint.h>
 #include <util/delay.h>
 #else
+#include <stdio.h>
 #include <inttypes.h>
 #include "delay.h"
 #endif
@@ -10,42 +11,28 @@
 #include "inc/Screen.h"
 
 //uint32_t m[MEM_SIZE]; // main memory
-uint32_t m[] = {
-	139,    160,    210,    0,      0,      0,      0,      0,
-	0,      0,      0,      0,      0,      0,      0,      0,
-	0,      0,      0,      26,     4,      26,     0,      -1,
-	2,      28,     0,      0,      12,     26,     4,      36,
-	0,      0,      2,      38,     0,      -1,     12,     17,
-	12,     2,      43,     0,      13,     11,     12,     0,
-	10,     2,      41,     0,      9,      2,      41,     0,
-	32,     2,      41,     0,      1,      20,     17,     1,
-	55,     31,     63,     18,     13,     12,     16,     16,
-	23,     17,     22,     18,     12,     0,      10,     1,
-	70,     0,      48,     19,     14,     15,     3,      92,
-	1,      77,     2,      93,     13,     2,      41,     15,
-	0,      0,      29,     3,      108,    0,      45,     1,
-	41,     0,      -1,     21,     2,      77,     1,      95,
-	2,      55,     10,     2,      110,    15,     10,     15,
-	3,      126,    1,      41,     2,      129,    13,     13,
-	12,     0,      1,      19,     2,      117,    12,     1,
-	117,    2,      47,     2,      154,    104,    101,    108,
-	108,    111,    32,     119,    111,    114,    108,    100,
-	33,     0,      0,      141,    1,      135,    2,      -1,
-	0,      0,      0,      0,      0,      0,      0,      0,
-	0,      0,      0,      0,      0,      0,      0,      0,
-	0,      0,      0,      0,      0,      0,      0,      0,
-	0,      0,      0,      0,      0,      0,      0,      0,
-	0,      0,      0,      0,      0,      0,      0,      0,
-	0,      0,      0,      0,      0,      0,      0,      0,
-	0,      0,      0,      0,      0,      0,      0,      0,
-	0,      0,      0,      0,      0,      0,      0,      0,
-	0,      0,      0,      0,      0,      0,      0,      0,
-	0,      0,      0,      0,      0,      0,      0,      0,
-	0,      0,      0,      0,      0,      0,      0,      0,
-	0,      0,      0,      0,      0,      0,      0,      0,
-    0,      0,      0,      0,
+#define PROG_SIZE 113
+uint8_t m[] = {
+	3,	12,	62,	0,	0,	31,	0,	104,	
+	0,	1,	31,	32,	0,	0,	0,	0,	
+	0,	0,	0,	0,	0,	0,	0,	0,	
+	0,	0,	0,	0,	0,	0,	0,	0,	
+	0,	0,	0,	0,	0,	0,	0,	0,	
+	0,	0,	0,	0,	0,	0,	0,	0,	
+	0,	0,	0,	0,	0,	0,	0,	0,	
+	0,	0,	0,	0,	0,	0,	0,	0,	
+	0,	0,	0,	0,	0,	0,	0,	0,	
+	0,	0,	0,	0,	0,	0,	0,	0,	
+	0,	0,	0,	0,	0,	0,	0,	0,	
+	0,	0,	0,	0,	0,	0,	0,	0,	
+	0,	0,	0,	0,	0,	0,	0,	0,	
+	0,	0,	0,	0,	0,	0,	0,	0,	
 };
+
 int keys = 0;
+int running;
+
+void rom_call(uint8_t routine);
 
 void push(int v)      { m[m[DP]++] = v; }
 void rpush(int v)     { m[m[RP]++] = v; }
@@ -84,85 +71,47 @@ void tick() {
 		case OP_SGT    : a = pop(); b = pop(); push(b>a ? -1:0);  break;
 		case OP_SLT    : a = pop(); b = pop(); push(b<a ? -1:0);  break;
 		case OP_NEXT   : m[PC] = --m[m[RP]-1]<0?m[PC]+1:m[m[PC]]; break;
+		case OP_ROM    : rom_call(pop());                         break;
+		case OP_STOP   : running = 0;                             break;
 	}
 }
 
 void vm_run(void) {
-	while(m[m[PC]] != OP_SYNC) {
+	running = 1;
+	while(running) {
 		tick();
-		if (m[PC] == -1) break;
 	}
 	m[PC]++;
 }
 
 int vm_load(int addr) {
-	//if (addr == RN) { return rand.nextInt(); } // TODO - implement random
-	if (addr == KY) { return keys; }
-	if (addr == KB) { return -1; }
-	if (addr == XS) { return 0; } // TODO - XO features
+	#ifdef SIMULATE
+		if(addr > PROG_SIZE || addr < 0)
+			printf("\nLoad violation at %d\n", addr);
+	#endif
 	return m[addr];
 }
 
 void vm_stor(int value, int addr) {
-	if(addr == CO) { screen_print_char((char)value); }
-	else {
-		m[addr] = value;
-	}
+	#ifdef SIMULATE
+		if(addr > PROG_SIZE || addr < 0)
+			printf("\nStor violation at %d\n", addr);
+	#endif
+	m[addr] = value;
 }
 
-/*void drawTile(int tile, int px, int py) {
-	tile &= ~GRID_Z_MASK;
-	if (tile < 0) { return; }
-	int i = m[GT] + (tile * 8 * 8);
-	g.drawRGB(m, i, 8, px, py, 8, 8, true);
-}
+typedef enum {
+	ROM_LCD_CLEAR,
+	ROM_LCD_CHAR
+} rom_call_t;
 
-int[] s = new int[4096]; // sprite buffer
-void drawSprite(int tile, int status, int px, int py, Graphics g) {
-	if (status % 2 == 0) { return; }
-	final int w = (((status & 0x0F00) >>  8) + 1) << 3;
-	final int h = (((status & 0xF000) >> 12) + 1) << 3;
-	int xd = 1; int x0 = 0; int x1 = w;
-	int yd = 1; int y0 = 0; int y1 = h;
-	if ((status & H_MIRROR_MASK) != 0) { xd = -1; x0 = w - 1; x1 = -1; }
-	if ((status & V_MIRROR_MASK) != 0) { yd = -1; y0 = h - 1; y1 = -1; }
-	int i = m[ST] + (tile * w * h);
-
-	for(int y = y0; y != y1; y += yd) {
-		for(int x = x0; x != x1; x += xd) {
-			s[x + (y * 64)] = m[i++];
-		}
-	}
-	g.drawRGB(s, 0, 64, px, py, w, h, true);
-}
-
-private void drawGrid(boolean hiz, int scrollx, int scrolly, Graphics g) {
-	int i = m[GP];
-	for(int y = 0; y < 31; y++) {
-		for(int x = 0; x < 41; x++) {
-			if (!hiz && (m[i] & GRID_Z_MASK) != 0) { i++; continue; }
-			if ( hiz && (m[i] & GRID_Z_MASK) == 0) { i++; continue; }
-			drawTile(m[i++], x*8 - scrollx, y*8 - scrolly, g);
-		}
-		i += m[GS];
+void rom_call(uint8_t routine) {
+	switch(routine) {
+		case ROM_LCD_CLEAR:
+			screen_clear(0x00);
+			break;
+		case ROM_LCD_CHAR:
+			screen_print_char(pop());
+			break;
 	}
 }
-
-public void sync(Graphics g) {
-	final int scrollx = m[SX];
-	final int scrolly = m[SY];
-
-	// clear screen
-	g.setColor(m[CL]);
-	g.fillRect(0, 0, 320, 240);
-
-	drawGrid(false, scrollx, scrolly, g);
-	for(int sprite = 0; sprite < 1024; sprite += 4) {
-		final int status = m[m[SP] + sprite    ];
-		final int tile   = m[m[SP] + sprite + 1];
-		final int px     = m[m[SP] + sprite + 2];
-		final int py     = m[m[SP] + sprite + 3];
-		drawSprite(tile, status, px - scrollx, py - scrolly, g);
-	}
-	drawGrid(true, scrollx, scrolly, g);
-}*/

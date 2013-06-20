@@ -251,7 +251,8 @@ public class CodeMatcher implements MakoConstants {
 		Not(   OP_NOT,    1, false),
 		SGT(   OP_SGT,    1, false),
 		SLT(   OP_SLT,    1, false),
-		Sync(  OP_SYNC,   1, false),
+		Sync(  OP_ROM,    1, false),
+		Stop(  OP_STOP,   1, false),
 
 		DelayConst( OP_CONST, 2, false);
 	

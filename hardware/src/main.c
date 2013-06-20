@@ -79,7 +79,7 @@ int main(void) {
 	boot();
 
 #ifndef SIMULATE
-	run();
+	run(0x00);
 #else
 	SDL_Thread *thread;
 

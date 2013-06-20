@@ -34,48 +34,14 @@ void vm_stor(int addr, int value);
 #define OP_NOT     27
 #define OP_SGT     28
 #define OP_SLT     29
-#define OP_SYNC    30
-#define OP_NEXT    31
+#define OP_NEXT    30
+#define OP_ROM     31
+#define OP_STOP    32
 
 #define PC   0 // program counter
 #define DP   1 // data stack pointer
 #define RP   2 // return stack pointer
 
-#define GP   3 // grid pointer
-#define GT   4 // grid tile pointer
-/*#define SP   5 // sprite pointer
-#define ST   6 // sprite tile pointer
-#define SX   7 // scroll X
-#define SY   8 // scroll Y
-#define GS   9 // grid horizontal skip
-#define CL  10 // clear color*/
-#define RN  11 // random number
-#define KY  12 // key input
-
-#define CO  13 // character-out (debug)
-#define AU  14 // audio-out (8khz, 8-bit)
-#define KB  15 // keyboard-in
-
-#define XO  16 // bidirectional external IO
-#define XA  17 // external argument 
-#define XS  18 // external status
-
-#define RESERVED_HEADER  19
-
-#define H_MIRROR_MASK  0x10000 // sprite is mirrored horizontally?
-#define V_MIRROR_MASK  0x20000 // sprite is mirrored vertically?
-#define GRID_Z_MASK  0x40000000 // grid tile is drawn above sprites?
-
-#define KEY_UP  0x01
-#define KEY_RT  0x02
-#define KEY_DN  0x04
-#define KEY_LF  0x08
-#define KEY_A   0x10
-#define KEY_B   0x20
-#define KEY_MASK  KEY_UP | KEY_RT | KEY_DN | KEY_LF | KEY_A | KEY_B
-
-#define X_CLOSE       0
-#define X_OPEN_READ   1
-#define X_OPEN_WRITE  2
+#define RESERVED_HEADER  3
 
 #endif

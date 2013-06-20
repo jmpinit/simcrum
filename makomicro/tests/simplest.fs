@@ -1,5 +1,4 @@
-:include <Print.fs>
-
 : main ( -- )
-	"hello world!" typeln
+	0 rom
+	104 1 rom
 ;

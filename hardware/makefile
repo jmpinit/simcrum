@@ -31,7 +31,7 @@ MCU_FREQ := 1000000UL
 
 CC := avr-gcc
 OBJCOPY := avr-objcopy
-SIZE := avr-size -A
+SIZE := avr-size -C --mcu=$(MCU)
 
 CFLAGS := -Wall -pedantic -mmcu=$(MCU) -std=c99 -g -Os -DF_CPU=$(MCU_FREQ) -gstabs
 

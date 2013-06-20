@@ -3,7 +3,6 @@ import java.io.*;
 import java.net.*;
 
 public class Maker implements MakoConstants {
-
 	private static boolean guardShadow = false;
 
 	private Map<String, Integer> dictionary = new TreeMap<String, Integer>();
@@ -22,7 +21,6 @@ public class Maker implements MakoConstants {
 	public static void main(String[] args) {
 		List<String> argList = new ArrayList<String>(Arrays.asList(args));
 
-		boolean run        = pluckArg(argList, "--run") || pluckArg(argList, "-r");
 		boolean fuzz       = pluckArg(argList, "--fuzz");
 		boolean symbols    = pluckArg(argList, "--symbols");
 		boolean quiet      = pluckArg(argList, "--quiet") || pluckArg(argList, "-q");
@@ -38,7 +36,7 @@ public class Maker implements MakoConstants {
 
 		if (argList.size() == 0) {
 			System.out.println("usage: java -jar Maker.jar [options] file [output]\n"
-							+ "Options:\n -r/--run\trun program after compiling\n"
+							+ "Options:\n"
 							+ " -l/--listing\toutput program disassembly\n"
 							+ " --fuzz\t\trandomize inputs when running\n"
 							+ " --word <word>\tdisassemble given word\n"
@@ -57,8 +55,8 @@ public class Maker implements MakoConstants {
 		Maker compiler = new Maker();
 		compiler.rom.showOptimizations(showOpt);
 		compiler.rom.optimize = !noOpt;
-		try { compiler.compileToken(":include", tokens("<Lang.fs>")); }
-		catch(IOException f) { System.out.println("Warning: unable to load lib/Lang.fs!"); }
+		/*try { compiler.compileToken(":include", tokens("<Lang.fs>")); }
+		catch(IOException f) { System.out.println("Warning: unable to load lib/Lang.fs!"); }*/
 		compiler.compile(argList.get(0));
 
 		if (argList.contains("--word")) {
@@ -67,8 +65,7 @@ public class Maker implements MakoConstants {
 			compiler.disassemble(word);
 			argList.remove("--word");
 			argList.remove(word);
-		}
-		else {
+		} else {
 			if (listing) {
 				compiler.rom.disassemble(System.out);
 			} else if (!quiet) {
@@ -76,12 +73,14 @@ public class Maker implements MakoConstants {
 				compiler.rom.disassemble(0, -1, System.out);
 			}
 		}
+
 		if (argList.size() > 1) {
 			compiler.rom.write(argList.get(1), symbols);
 		}
+
 		if (asC) {
 			int[] mem = compiler.rom.toArray();
-			System.out.println("uint32_t prog_mako = {");
+			System.out.println("uint8_t prog_mako[] = {");
 			int i = 0;
 			while (i < mem.length) {
 				System.out.print("\t");
@@ -92,40 +91,6 @@ public class Maker implements MakoConstants {
 				System.out.println();
 			}
 			System.out.println("};");
-		}
-		if (run) {
-			int[] mem = compiler.rom.toArray();
-			try {
-				Mako.trace       = trace;
-				Mako.traceLive   = traceLive;
-				Mako.guardCode   = gCode;
-				Mako.guardStacks = gStack;
-				Mako.exec(mem, fuzz, compiler.rom);
-			}
-			catch(Throwable t) {
-				System.out.println("Runtime Error: ");
-				t.printStackTrace();
-				System.out.println("Analyzing and dumping core...");
-
-				try {
-					// we want to be able to see any significant differences,
-					// so we should ungroup array data like the stacks:
-					compiler.rom.swapType(MakoRom.Type.Array, MakoRom.Type.Data);
-
-					compiler.rom.disassemble(new PrintStream(new File(argList.get(0) + ".before")));
-					System.out.println("Wrote '"+argList.get(0) + ".before'.");
-
-					for(int x = 0; x < mem.length; x++) { compiler.rom.set(x, mem[x]); }
-					compiler.rom.write(argList.get(0) + ".coredump", false);
-					System.out.println("Wrote '"+argList.get(0) + ".coredump'.");
-
-					compiler.rom.disassemble(new PrintStream(new File(argList.get(0) + ".after")));
-					System.out.println("Wrote '"+argList.get(0) + ".after'.");
-				}
-				catch(IOException e) {
-					e.printStackTrace();
-				}
-			}
 		}
 	}
 
@@ -139,16 +104,6 @@ public class Maker implements MakoConstants {
 
 	public Maker(MakoRom rom) {
 		this.rom = rom;
-
-		// sprite size constants:
-		for(int x = 0; x < 8; x++) {
-			for(int y = 0; y < 8; y++) {
-				int w = (x + 1) * 8;
-				int h = (y + 1) * 8;
-				int v = ((x << 8) & 0x0F00) | ((y << 12) & 0xF000) | 1;
-				defineConstant(String.format("%dx%d", w, h), v);
-			}
-		}
 	}
 
 	public Maker() {
@@ -158,22 +113,6 @@ public class Maker implements MakoConstants {
 		defineVariable("PC", PC);
 		defineVariable("DP", DP);
 		defineVariable("RP", RP);
-		defineVariable("GP", GP);
-		defineVariable("GT", GT);
-		defineVariable("SP", SP);
-		defineVariable("ST", ST);
-		defineVariable("GS", GS);
-		defineVariable("SX", SX);
-		defineVariable("SY", SY);
-		defineVariable("CL", CL);
-		defineVariable("RN", RN);
-		defineVariable("KY", KY);
-		defineVariable("CO", CO);
-		defineVariable("AU", AU);
-		defineVariable("KB", KB);
-		defineVariable("XO", XO);
-		defineVariable("XA", XA);
-		defineVariable("XS", XS);
 	}
 
 	public MakoRom compile(String filename) {
@@ -280,7 +219,7 @@ public class Maker implements MakoConstants {
 		}
 		else if (token.equals(";")) {
 			compiling = false;
-			if ("main".equals(wordName)) { rom.addJump(-1); }
+			if ("main".equals(wordName)) { rom.addStop(); }
 			else                         { rom.addReturn(); }
 			wordName = null;
 		}
@@ -496,7 +435,7 @@ public class Maker implements MakoConstants {
 		else if (token.equals("not"))  { rom.addNot();    }
 		else if (token.equals(">"))    { rom.addSgt();    }
 		else if (token.equals("<"))    { rom.addSlt();    }
-		else if (token.equals("sync")) { rom.addSync();   }
+		else if (token.equals("rom"))  { rom.addRom();    }
 		
 		// pseudo-ops
 		else if (token.equals("<="))    { rom.addSgt();  rom.addNot();  }
@@ -506,10 +445,6 @@ public class Maker implements MakoConstants {
 		else if (token.equals("rdrop")) { rom.addRts();  rom.addDrop(); }
 		else if (token.equals("nip"))   { rom.addSwap(); rom.addDrop(); }
 		else if (token.equals("halt"))  { rom.addJump(-1); }
-		else if (token.equals("keys")) {
-			rom.addConst(KY);
-			rom.addLoad();
-		}
 		else if (token.equals("i")) {
 			rom.addRts();
 			rom.addDup();

@@ -5,7 +5,6 @@ import java.awt.image.PixelGrabber;
 import javax.imageio.ImageIO;
 
 public class MakoRom implements MakoConstants {
-
 	private final List<Integer> data  = new ArrayList<Integer>();
 	private final List<Type>    types = new ArrayList<Type>();
 	private final Map<String, Integer> labels = new HashMap<String, Integer>();
@@ -237,7 +236,8 @@ public class MakoRom implements MakoConstants {
 	public void addNot()  { add(OP_NOT,  Type.Code); }
 	public void addSgt()  { add(OP_SGT,  Type.Code); }
 	public void addSlt()  { add(OP_SLT,  Type.Code); }
-	public void addSync() { add(OP_SYNC, Type.Code); }
+	public void addRom()  { add(OP_ROM,  Type.Code); }
+	public void addStop() { add(OP_STOP, Type.Code); }
 
 	private static final Map<Integer, String> mnemonics = new HashMap<Integer, String>();
 	{
@@ -266,8 +266,9 @@ public class MakoRom implements MakoConstants {
 		mnemonics.put(OP_NOT,    "NOT");
 		mnemonics.put(OP_SGT,    "SGT");
 		mnemonics.put(OP_SLT,    "SLT");
-		mnemonics.put(OP_SYNC,   "SYNC");
 		mnemonics.put(OP_NEXT,   "NEXT");
+		mnemonics.put(OP_ROM,    "ROM");
+		mnemonics.put(OP_STOP,   "STOP");
 	}
 
 	private static final Set<Integer> paramOps = new HashSet<Integer>();
@@ -307,9 +308,9 @@ public class MakoRom implements MakoConstants {
 			}
 			prevOp = (t == Type.Code) ? op : -1;
 		}
-		out.format("%n%d words, %.3f kb.%n",
+		out.format("%n%d bytes, %.3f kb.%n",
 			size(),
-			((double)size())/256
+			((double)size())/256/4
 		);
 	}
 
