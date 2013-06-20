@@ -1,5 +1,11 @@
+#ifndef SIMULATE
 #include <stdint.h>
 #include <util/delay.h>
+#else
+#include <inttypes.h>
+#include "delay.h"
+#endif
+
 #include "inc/MakoVM.h"
 #include "inc/Screen.h"
 
@@ -98,7 +104,7 @@ int vm_load(int addr) {
 }
 
 void vm_stor(int value, int addr) {
-	if(addr == CO) { screen_print_hex((char)value); }
+	if(addr == CO) { screen_print_char((char)value); }
 	else {
 		m[addr] = value;
 	}

@@ -1,4 +1,8 @@
+#ifndef SIMULATE
 #include <avr/io.h>
+#else
+#include <inttypes.h>
+#endif
 
 #include "inc/Analog.h"
 

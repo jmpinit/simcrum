@@ -1,6 +1,8 @@
+#ifndef SIMULATE
 #include <avr/io.h>
 #include <util/delay.h>
 #include <avr/pgmspace.h>
+#endif
 
 //#include "logo.h"
 
@@ -138,9 +140,7 @@ void screen_newline(void)
 	cursory++;
 	
 	if(cursory>=LCD_ROWS)
-	{
 		screen_scrollup();
-	}
 }
 
 void screen_print_char(char c)

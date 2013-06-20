@@ -1,7 +1,16 @@
+#ifndef SIMULATE
 #include <avr/io.h>
 #include <util/delay.h>
 #include <avr/interrupt.h>
 #include <avr/pgmspace.h>
+#else
+#include "delay.h"
+#include <inttypes.h>
+#include <stdio.h>
+#include "SDL/SDL.h"
+#include "SDL/SDL_thread.h"
+#include "bootstrap.h"
+#endif
 
 #include "inc/Analog.h"
 #include "inc/Disk.h"
@@ -27,15 +36,13 @@ void boot(void) {
 	adc_init();
 }
 
-int main(void) {
-	boot();
-	
+int run(void* ptr) {
 	screen_print_string("running vm");
 	screen_newline();
 	vm_run();
 	screen_newline();
 	screen_print_string("vm done");
-	
+
 	for(;;) { __asm__ volatile("NOP"); }
 
 	for(;;) {
@@ -64,6 +71,26 @@ int main(void) {
 			}
 		}
 	}
-    
+
+	return 0;
+}
+
+int main(void) {
+	boot();
+
+#ifndef SIMULATE
+	run();
+#else
+	SDL_Thread *thread;
+
+	thread = SDL_CreateThread(run, (void *)NULL);
+
+	if( NULL == thread ) {
+		printf("\nSDL_CreateThread failed: %s\n", SDL_GetError()); 
+	}
+
+	idle();
+#endif
+
     return(0);
 }
